@@ -1,0 +1,13 @@
+﻿global using MediatR;
+global using FluentValidation;
+global using System.Reflection;
+global using CQRS.FluentValidation;
+global using CQRS.Query.Abstraction;
+global using CQRS.Event.Abstraction;
+global using FluentValidation.Results;
+global using CQRS.Command.Abstraction;
+global using CQRS.Event.Implementation;
+global using CQRS.Query.Implementation;
+global using CQRS.Command.Implementation;
+global using FluentValidation.AspNetCore;
+global using Microsoft.Extensions.DependencyInjection;
