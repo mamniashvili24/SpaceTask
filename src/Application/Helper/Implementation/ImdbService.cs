@@ -19,37 +19,30 @@ public class ImdbService : IImdbService
     }
     public async Task<IDataResponse<T>> GetAsync<T>(string methodName, string lanugageCode, string queryParameter)
     {
-        try
+        var client = _httpClient.CreateClient(HttpClientStrings.IMDBClient);
+        var path = string.Format("{0}/API/{1}/{2}/{3}", lanugageCode, methodName, _imdbClientKey.Key, queryParameter);
+
+        var responseMessage = await client.GetAsync(path);
+
+        if (!responseMessage.IsSuccessStatusCode)
+            throw new Exception(ErrorMessages.ApiCallError);
+
+        var responseString = await responseMessage.Content.ReadAsStringAsync();
+        var jToken = JObject.Parse(responseString);
+
+        if (jToken == null)
+            throw new Exception(ErrorMessages.ApiCallError);
+
+        if (jToken.TryGetValue("errorMessage", StringComparison.OrdinalIgnoreCase, out JToken errorMessage))
         {
-            var client = _httpClient.CreateClient(HttpClientStrings.IMDBClient);
-            var path = string.Format("{0}/API/{1}/{2}/{3}", lanugageCode, methodName, _imdbClientKey.Key, queryParameter);
-
-            var responseMessage = await client.GetAsync(path);
-
-            if (!responseMessage.IsSuccessStatusCode)
-                return new DataResponse<T>(ErrorMessages.ApiCallError);
-
-            var responseString = await responseMessage.Content.ReadAsStringAsync();
-            var jToken = JObject.Parse(responseString);
-
-            if (jToken == null)
-                return new DataResponse<T>(ErrorMessages.ApiCallError);
-            
-            if (jToken.TryGetValue("errorMessage", StringComparison.OrdinalIgnoreCase, out JToken errorMessage))
-            {
-                if (!string.IsNullOrEmpty(errorMessage.ToString()))
-                    return new DataResponse<T>(errorMessage.ToString());
-            }
-
-            var json = jToken.TryGetValue("results", StringComparison.OrdinalIgnoreCase, out JToken result) ? result.ToString() : jToken.ToString();
-
-            var response = JsonConvert.DeserializeObject<T>(json);
-
-            return new DataResponse<T>(response);
+            if (!string.IsNullOrEmpty(errorMessage.ToString()))
+                throw new Exception(errorMessage.ToString());
         }
-        catch (Exception ex)
-        {
-            return new DataResponse<T>(ex);
-        }
+
+        var json = jToken.TryGetValue("results", StringComparison.OrdinalIgnoreCase, out JToken result) ? result.ToString() : jToken.ToString();
+
+        var response = JsonConvert.DeserializeObject<T>(json);
+
+        return new DataResponse<T>(response);
     }
 }

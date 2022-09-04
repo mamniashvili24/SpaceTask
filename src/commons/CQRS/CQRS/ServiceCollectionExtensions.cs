@@ -8,7 +8,6 @@ public static class ServiceCollectionExtensions
         services.AddMediatR(assembly);
 
         services.AddScoped<IQueryBus, QueryBus>();
-        services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<ICommandBus, CommandBus>();
 
         return services;
@@ -20,7 +19,6 @@ public static class ServiceCollectionExtensions
         services.AddMediatR(assembly);
 
         services.AddScoped<IQueryBus, QueryBus>();
-        services.AddScoped<IEventBus, EventBus>();
         services.AddScoped<ICommandBus, CommandBus>();
 
         services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));

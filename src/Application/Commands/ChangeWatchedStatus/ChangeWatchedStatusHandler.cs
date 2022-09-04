@@ -17,21 +17,14 @@ public class ChangeWatchedStatusHandler : ICommandHandler<ChangeWatchedStatus, I
     }
     public async Task<IDataResponse> Handle(ChangeWatchedStatus request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var film = await _watchlistRepository.FindOneAsync(watchlist => watchlist.Id == request.WatchlistId, cancellationToken);
-            if (film == null)
-                return new DataResponse(ErrorMessages.FilmNotExistInWatchList);
+        var film = await _watchlistRepository.FindOneAsync(watchlist => watchlist.Id == request.WatchlistId, cancellationToken);
+        if (film == null)
+            return new DataResponse(ErrorMessages.FilmNotExistInWatchList);
 
-            film.Type = (WatchlistType)Convert.ToInt32(request.IsWatched);
+        film.Type = (WatchlistType)Convert.ToInt32(request.IsWatched);
 
-            await _watchlistRepository.SaveChangesAsync(cancellationToken);
+        await _watchlistRepository.SaveChangesAsync(cancellationToken);
 
-            return new DataResponse();
-        }
-        catch (Exception ex)
-        {
-            return new DataResponse(ex);
-        }
+        return new DataResponse();
     }
 }

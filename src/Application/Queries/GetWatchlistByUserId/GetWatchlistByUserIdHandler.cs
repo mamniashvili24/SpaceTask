@@ -1,5 +1,4 @@
-﻿using Domain.Abstraction;
-using CQRS.Query.Abstraction;
+﻿using CQRS.Query.Abstraction;
 using CommonTypes.Abstractions;
 using CommonTypes.Implementations;
 using Infrastructure.Database.Entities;
@@ -7,33 +6,26 @@ using Infrastructure.Repositories.Abstraction;
 
 namespace Application.Queries.GetWatchlistByUserId;
 
-public class GetWatchlistByUserIdHandler : IQueryHandler<GetWatchlistByUserId, IDataResponse<IEnumerable<IWatchlist>>>
+public class GetWatchlistByUserIdHandler : IQueryHandler<GetWatchlistByUserId, IDataResponse<IEnumerable<Domain.Implementation.Watchlist>>>
 {
-	private readonly IRepository<Watchlist> _watchlistRepository;
+    private readonly IRepository<Watchlist> _watchlistRepository;
 
-	public GetWatchlistByUserIdHandler(IRepository<Watchlist> watchlistRepository)
-	{
-		_watchlistRepository = watchlistRepository;
-	}
-    public async Task<IDataResponse<IEnumerable<IWatchlist>>> Handle(GetWatchlistByUserId request, CancellationToken cancellationToken)
+    public GetWatchlistByUserIdHandler(IRepository<Watchlist> watchlistRepository)
     {
-		try
-		{
-			var watchlists = _watchlistRepository.Find(watchlist => watchlist.UserId == request.UserId)
-				.Select(watchlist => new Domain.Implementation.Watchlist
-				{
-					Id = watchlist.Id,
-					Title = watchlist.Title,
-					FilmId = watchlist.FilmId,
-					UserId = watchlist.UserId,
-					WatchType = watchlist.Type.ToString()
-                });
+        _watchlistRepository = watchlistRepository;
+    }
+    public async Task<IDataResponse<IEnumerable<Domain.Implementation.Watchlist>>> Handle(GetWatchlistByUserId request, CancellationToken cancellationToken)
+    {
+        var watchlists = _watchlistRepository.Find(watchlist => watchlist.UserId == request.UserId)
+            .Select(watchlist => new Domain.Implementation.Watchlist
+            {
+                Id = watchlist.Id,
+                Title = watchlist.Title,
+                FilmId = watchlist.FilmId,
+                UserId = watchlist.UserId,
+                WatchType = watchlist.Type.ToString()
+            });
 
-			return new DataResponse<IEnumerable<IWatchlist>>(watchlists);
-		}
-		catch (Exception ex)
-		{
-			return new DataResponse<IEnumerable<IWatchlist>>(ex);
-		}
+        return new DataResponse<IEnumerable<Domain.Implementation.Watchlist>>(watchlists);
     }
 }

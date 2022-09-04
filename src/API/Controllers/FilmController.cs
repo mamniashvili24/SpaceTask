@@ -1,5 +1,4 @@
 ﻿using API.RequestModel;
-using Domain.Abstraction;
 using Domain.Implementation;
 using CQRS.Query.Abstraction;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +32,7 @@ namespace API.Controllers
         [HttpGet("GetWatchListByUserId")]
         public async Task<IActionResult> GetWatchListByUserId([FromQuery] GetWatchlistByUserIdModel model, CancellationToken cancellationToken = default)
         {
-            return await ProccessQueryAsync<GetWatchlistByUserId, GetWatchlistByUserIdModel, IEnumerable<IWatchlist>>(model, cancellationToken);
+            return await ProccessQueryAsync<GetWatchlistByUserId, GetWatchlistByUserIdModel, IEnumerable<Watchlist>>(model, cancellationToken);
         }
     }
 }

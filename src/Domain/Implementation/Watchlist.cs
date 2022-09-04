@@ -1,8 +1,6 @@
-﻿using Domain.Abstraction;
+﻿namespace Domain.Implementation;
 
-namespace Domain.Implementation;
-
-public class Watchlist : IWatchlist
+public class Watchlist
 {
     public Guid Id { get; set; }
     public Guid UserId { get; set; }

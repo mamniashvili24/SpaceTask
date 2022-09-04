@@ -29,7 +29,7 @@ namespace Message.Implementation
                 }
                 return true;
             }
-            catch (Exception ეხ)
+            catch (Exception)
             {
                 return false;
             }

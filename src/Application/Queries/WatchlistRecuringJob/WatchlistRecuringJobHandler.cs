@@ -19,32 +19,25 @@ public class WatchlistRecuringJobHandler : IQueryHandler<WatchlistRecuringJob, I
     }
     public async Task<IDataResponse> Handle(WatchlistRecuringJob request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var allWatchlist = await _watchlistRepository.GetAllAsync(cancellationToken);
-            var userIds = allWatchlist.Select(o => o.UserId).Distinct();
+        var allWatchlist = await _watchlistRepository.GetAllAsync(cancellationToken);
+        var userIds = allWatchlist.Select(o => o.UserId).Distinct();
 
-            foreach (var userId in userIds)
+        foreach (var userId in userIds)
+        {
+            if (allWatchlist.Count(o => o.UserId == userId && o.Type == WatchlistType.Unwanted) < 3)
+                continue;
+
+            var film = allWatchlist.OrderByDescending(o => o.Rating).FirstOrDefault(o => o.UserId == userId && o.Type == WatchlistType.Unwanted);
+            if (film != null)
             {
-                if (allWatchlist.Count(o => o.UserId == userId && o.Type == WatchlistType.Unwanted) < 3)
-                    continue;
-
-                var film = allWatchlist.OrderByDescending(o => o.Rating).FirstOrDefault(o => o.UserId == userId && o.Type == WatchlistType.Unwanted);
-                if (film != null)
-                {
-                    var doesEmailSend = await SendMailAsync(film);
-                    if (doesEmailSend)
-                        UpdateFilmType(film);
-                }
+                var doesEmailSend = await SendMailAsync(film);
+                if (doesEmailSend)
+                    UpdateFilmType(film);
             }
-            await _watchlistRepository.SaveChangesAsync(cancellationToken);
+        }
+        await _watchlistRepository.SaveChangesAsync(cancellationToken);
 
-            return new DataResponse();
-        }
-        catch (Exception ex)
-        {
-            return new DataResponse(ex);
-        }
+        return new DataResponse();
     }
 
     private void UpdateFilmType(Watchlist? film)
