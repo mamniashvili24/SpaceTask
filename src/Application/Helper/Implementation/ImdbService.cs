@@ -1,8 +1,7 @@
 ﻿using Domain.Errors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using CommonTypes.Abstractions;
-using CommonTypes.Implementations;
+using Microsoft.Extensions.Options;
 using Application.Helper.Abstraction;
 
 namespace Application.Helper.Implementation;
@@ -10,17 +9,17 @@ namespace Application.Helper.Implementation;
 public class ImdbService : IImdbService
 {
     private readonly IHttpClientFactory _httpClient;
-    private readonly IImdbClientKey _imdbClientKey;
+    private readonly IOptions<ImdbClientKey> _imdbClientKey;
 
-    public ImdbService(IHttpClientFactory httpClient, IImdbClientKey imdbClientKey)
+    public ImdbService(IHttpClientFactory httpClient, IOptions<ImdbClientKey> imdbClientKey)
     {
         _httpClient = httpClient;
         _imdbClientKey = imdbClientKey;
     }
-    public async Task<IDataResponse<T>> GetAsync<T>(string methodName, string lanugageCode, string queryParameter)
+    public async Task<T> GetAsync<T>(string methodName, string lanugageCode, string queryParameter)
     {
         var client = _httpClient.CreateClient(HttpClientStrings.IMDBClient);
-        var path = string.Format("{0}/API/{1}/{2}/{3}", lanugageCode, methodName, _imdbClientKey.Key, queryParameter);
+        var path = string.Format("{0}/API/{1}/{2}/{3}", lanugageCode, methodName, _imdbClientKey.Value.Key, queryParameter);
 
         var responseMessage = await client.GetAsync(path);
 
@@ -43,6 +42,6 @@ public class ImdbService : IImdbService
 
         var response = JsonConvert.DeserializeObject<T>(json);
 
-        return new DataResponse<T>(response);
+        return response;
     }
 }

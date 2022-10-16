@@ -1,8 +1,4 @@
-﻿using System;
-using Newtonsoft.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using CommonTypes.Implementations;
+﻿using API.ErrorHandling;
 
 namespace API.Middlewares;
 
@@ -23,9 +19,8 @@ public class ErrorHandlerMiddleware
         }
         catch (Exception ex)
         {
-            httpContext.Response.StatusCode = StatusCodes.Status200OK;
-            var errorMessage = JsonConvert.SerializeObject(new DataResponse(ex), Formatting.Indented);
-            await httpContext.Response.WriteAsync(errorMessage);
+            var errorMessage = ex.ToProblemDetails();
+            await httpContext.Response.WriteAsJsonAsync(errorMessage);
         }
     }
 }

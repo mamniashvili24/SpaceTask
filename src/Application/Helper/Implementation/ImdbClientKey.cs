@@ -2,7 +2,7 @@
 
 namespace Application.Helper.Implementation;
 
-public class ImdbClientKey : IImdbClientKey
+public class ImdbClientKey
 {
     public string Key { get; set; }
 }

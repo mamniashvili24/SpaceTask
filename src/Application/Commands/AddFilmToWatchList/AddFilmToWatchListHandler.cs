@@ -1,13 +1,12 @@
-﻿using Domain.Implementation;
-using CommonTypes.Abstractions;
+﻿using MediatR;
+using Domain.Implementation;
 using CQRS.Command.Abstraction;
-using CommonTypes.Implementations;
 using Application.Helper.Abstraction;
 using Infrastructure.Repositories.Abstraction;
 
 namespace Application.Commands.AddFilmToWatchList;
 
-public class AddFilmToWatchListHandler : ICommandHandler<AddFilmToWatchList, IDataResponse>
+public class AddFilmToWatchListHandler : ICommandHandler<AddFilmToWatchList>
 {
     private readonly IImdbService _imdbService;
     private readonly IRepository<Infrastructure.Database.Entities.Watchlist> _watchlistRepository;
@@ -17,22 +16,22 @@ public class AddFilmToWatchListHandler : ICommandHandler<AddFilmToWatchList, IDa
         _imdbService = imdbService;
         _watchlistRepository = watchlistRepository;
     }
-    public async Task<IDataResponse> Handle(AddFilmToWatchList request, CancellationToken cancellationToken)
+    public async Task<Unit> Handle(AddFilmToWatchList request, CancellationToken cancellationToken)
     {
         var result = await _imdbService.GetAsync<Film>("Title", request.LanguageCode, request.FilmId);
 
         await _watchlistRepository.AddAsync(new Infrastructure.Database.Entities.Watchlist
         {
+            Poster = result.Image,
             FilmId = request.FilmId,
             UserId = request.UserId,
-            Poster = result.Data.Image,
-            Title = result.Data.FullTitle,
-            Description = result.Data.Plot,
-            Rating = result.Data.ImDbRating
+            Title = result.FullTitle,
+            Description = result.Plot,
+            Rating = result.ImDbRating
         }, cancellationToken);
 
         await _watchlistRepository.SaveChangesAsync(cancellationToken);
 
-        return new DataResponse();
+        return new Unit();
     }
 }

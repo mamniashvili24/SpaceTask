@@ -1,7 +1,6 @@
 ﻿using CQRS.Query.Abstraction;
 using CQRS.Command.Abstraction;
 using Microsoft.AspNetCore.Mvc;
-using CommonTypes.Abstractions;
 using Mapper.MapperConfiguration;
 
 namespace API.Controllers;
@@ -33,7 +32,7 @@ public class BaseController : ControllerBase
         return languageHeadervalue;
     }
     private void SetLanguageCodeToCommand<TCommand>(TCommand command)
-                                                                    where TCommand : class, ICommand<IDataResponse>
+                                                                    where TCommand : class, ICommand
     {
         var languageCodeProperty = typeof(TCommand).GetProperties().FirstOrDefault(o => o.Name.ToLower() == _languagecode);
         if (languageCodeProperty != null)
@@ -43,7 +42,7 @@ public class BaseController : ControllerBase
         }
     }
     private void SetLanguageCodeToQuery<TQuery, TResponse>(TQuery query)
-                                                                    where TQuery : class, IQuery<IDataResponse<TResponse>>
+                                                                    where TQuery : class, IQuery<TResponse>
     {
         var languageCodeProperty = typeof(TQuery).GetProperties().FirstOrDefault(o => o.Name.ToLower() == _languagecode);
         if (languageCodeProperty != null)
@@ -54,41 +53,23 @@ public class BaseController : ControllerBase
     }
     protected async Task<IActionResult> ProccessQueryAsync<TQuery, TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default)
                                                                                      where TRequest : class
-                                                                                     where TQuery : class, IQuery<IDataResponse<TResponse>>
+                                                                                     where TQuery : class, IQuery<TResponse>
     {
         var query = Mapping.Map<TRequest, TQuery>(request);
         SetLanguageCodeToQuery<TQuery, TResponse>(query);
         var response = await _queryBus.SendAsync(query, cancellationToken);
 
-        return ReturnResponse(response);
+        return Ok(response);
     }
     protected async Task<IActionResult> ProccessCommandAsync<TCommand, TRequest>(TRequest request, CancellationToken cancellationToken = default)
                                                                                              where TRequest : class
-                                                                                             where TCommand : class, ICommand<IDataResponse>
+                                                                                             where TCommand : class, ICommand
     {
         var command = Mapping.Map<TRequest, TCommand>(request);
 
         SetLanguageCodeToCommand(command);
-        var response = await _commandBus.SendAsync(command);
+        await _commandBus.SendAsync(command, cancellationToken);
 
-        return ReturnResponse(response);
-    }
-    protected IActionResult ReturnResponse<T>(IDataResponse<T> response)
-    {
-        if (response.IsError)
-        {
-            return BadRequest(response);
-        }
-
-        return Ok(response);
-    }
-    protected IActionResult ReturnResponse(IDataResponse response)
-    {
-        if (response.IsError)
-        {
-            return BadRequest(response);
-        }
-
-        return Ok(response);
+        return Ok();
     }
 }

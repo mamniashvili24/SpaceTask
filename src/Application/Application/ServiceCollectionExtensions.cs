@@ -22,8 +22,10 @@ public static class ServiceCollectionExtensions
         {
             client.BaseAddress = new Uri(baseUrl);
         });
-        var key = configuration.GetValue<string>(HttpClientStrings.ImdbClientApiKey);
-        services.AddSingleton<IImdbClientKey>(new ImdbClientKey { Key = key });
+
+        var section = configuration.GetSection(HttpClientStrings.ImdbClientApiKey);
+        services.Configure<ImdbClientKey>(section);
+
         services.AddScoped<IImdbService, ImdbService>();
         services.AddMessage();
 

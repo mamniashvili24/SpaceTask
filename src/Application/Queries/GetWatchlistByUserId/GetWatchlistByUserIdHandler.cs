@@ -1,12 +1,10 @@
 ﻿using CQRS.Query.Abstraction;
-using CommonTypes.Abstractions;
-using CommonTypes.Implementations;
 using Infrastructure.Database.Entities;
 using Infrastructure.Repositories.Abstraction;
 
 namespace Application.Queries.GetWatchlistByUserId;
 
-public class GetWatchlistByUserIdHandler : IQueryHandler<GetWatchlistByUserId, IDataResponse<IEnumerable<Domain.Implementation.Watchlist>>>
+public class GetWatchlistByUserIdHandler : IQueryHandler<GetWatchlistByUserId, IEnumerable<Domain.Implementation.Watchlist>>
 {
     private readonly IRepository<Watchlist> _watchlistRepository;
 
@@ -14,7 +12,7 @@ public class GetWatchlistByUserIdHandler : IQueryHandler<GetWatchlistByUserId, I
     {
         _watchlistRepository = watchlistRepository;
     }
-    public async Task<IDataResponse<IEnumerable<Domain.Implementation.Watchlist>>> Handle(GetWatchlistByUserId request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<Domain.Implementation.Watchlist>> Handle(GetWatchlistByUserId request, CancellationToken cancellationToken)
     {
         var watchlists = _watchlistRepository.Find(watchlist => watchlist.UserId == request.UserId)
             .Select(watchlist => new Domain.Implementation.Watchlist
@@ -26,6 +24,6 @@ public class GetWatchlistByUserIdHandler : IQueryHandler<GetWatchlistByUserId, I
                 WatchType = watchlist.Type.ToString()
             });
 
-        return new DataResponse<IEnumerable<Domain.Implementation.Watchlist>>(watchlists);
+        return watchlists;
     }
 }

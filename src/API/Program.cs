@@ -1,7 +1,10 @@
 using Mapper;
-using Application;
-using API.BackgroundServices;
+using Hangfire;
 using API.Headers;
+using Application;
+using CQRS.Query.Abstraction;
+using Application.Commands.WatchlistRecuringJob;
+using CQRS.Command.Abstraction;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,9 +19,12 @@ builder.Services.AddSwaggerGen(option =>
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMapperWithProfiles();
-builder.Services.AddHostedService<RegisterHangfireJob>();
 
-var app = builder.Build();
+var commandBus = builder.Services.BuildServiceProvider().GetService<ICommandBus>();
+
+RecurringJob.AddOrUpdate(() => commandBus.SendAsync(new WatchlistRecuringJob(), default), Cron.Weekly(DayOfWeek.Sunday, 19, 30));
+
+    var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
