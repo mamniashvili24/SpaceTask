@@ -14,6 +14,6 @@ public class GetFilmByNameHandler : IQueryHandler<GetFilmByName, IEnumerable<Sea
     }
     public async Task<IEnumerable<SearchedFilm>> Handle(GetFilmByName request, CancellationToken cancellationToken)
     {
-        return await _imdbService.GetAsync<IEnumerable<SearchedFilm>>("Search", request.LanguageCode, request.Name);
+        return await _imdbService.GetAsync<IEnumerable<SearchedFilm>>("Search", request.Name);
     }
 }
