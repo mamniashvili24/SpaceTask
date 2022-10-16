@@ -6,5 +6,4 @@ public class AddFilmToWatchList : ICommand
 {
     public Guid UserId { get; set; }
     public string FilmId { get; set; }
-    public string LanguageCode { get; set; }
 }

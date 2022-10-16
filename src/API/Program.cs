@@ -2,9 +2,8 @@ using Mapper;
 using Hangfire;
 using API.Headers;
 using Application;
-using CQRS.Query.Abstraction;
-using Application.Commands.WatchlistRecuringJob;
 using CQRS.Command.Abstraction;
+using Application.Commands.WatchlistRecuringJob;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +35,13 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseRequestLocalization(
+        new RequestLocalizationOptions()
+            .SetDefaultCulture("en-Us")
+            .AddSupportedCultures()
+    );
+
 
 app.ErrorExceptionMiddleware();
 

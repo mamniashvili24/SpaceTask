@@ -2,5 +2,5 @@
 
 public interface IImdbService
 {
-    Task<T> GetAsync<T>(string methodName, string lanugageCode, string queryParameter);
+    Task<T> GetAsync<T>(string methodName, string queryParameter);
 }

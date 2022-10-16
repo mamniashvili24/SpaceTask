@@ -18,7 +18,7 @@ public class AddFilmToWatchListHandler : ICommandHandler<AddFilmToWatchList>
     }
     public async Task<Unit> Handle(AddFilmToWatchList request, CancellationToken cancellationToken)
     {
-        var result = await _imdbService.GetAsync<Film>("Title", request.LanguageCode, request.FilmId);
+        var result = await _imdbService.GetAsync<Film>("Title", request.FilmId);
 
         await _watchlistRepository.AddAsync(new Infrastructure.Database.Entities.Watchlist
         {

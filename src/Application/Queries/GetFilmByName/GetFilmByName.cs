@@ -6,5 +6,4 @@ namespace Application.Queries.GetFilmByName;
 public class GetFilmByName : IQuery<IEnumerable<SearchedFilm>>
 {
     public string Name { get; set; }
-    public string LanguageCode { get; set; }
 }

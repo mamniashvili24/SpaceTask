@@ -1,6 +1,7 @@
 ﻿using Domain.Errors;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 using Microsoft.Extensions.Options;
 using Application.Helper.Abstraction;
 
@@ -16,10 +17,12 @@ public class ImdbService : IImdbService
         _httpClient = httpClient;
         _imdbClientKey = imdbClientKey;
     }
-    public async Task<T> GetAsync<T>(string methodName, string lanugageCode, string queryParameter)
+    public async Task<T> GetAsync<T>(string methodName, string queryParameter)
     {
+        var languageCode = CultureInfo.CurrentCulture.Name;
+
         var client = _httpClient.CreateClient(HttpClientStrings.IMDBClient);
-        var path = string.Format("{0}/API/{1}/{2}/{3}", lanugageCode, methodName, _imdbClientKey.Value.Key, queryParameter);
+        var path = string.Format("{0}/API/{1}/{2}/{3}", languageCode, methodName, _imdbClientKey.Value.Key, queryParameter);
 
         var responseMessage = await client.GetAsync(path);
 
